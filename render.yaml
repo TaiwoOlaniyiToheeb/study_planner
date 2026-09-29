@@ -1,0 +1,30 @@
+# Render "Blueprint" — lets you deploy backend + database together by
+# pointing Render at this repo (New -> Blueprint). You can also skip this
+# file entirely and click through New -> Web Service manually; both are
+# covered in the README.
+services:
+  - type: web
+    name: ai-study-schedule-api
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-study-schedule-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_PROVIDER_API_KEY
+        sync: false
+      - key: AI_MODEL
+        value: claude-sonnet-5
+      - key: FRONTEND_ORIGINS
+        sync: false
+
+databases:
+  - name: ai-study-schedule-db
+    plan: free
