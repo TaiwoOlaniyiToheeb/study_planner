@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { AvailabilityPeriod, DAY_LABELS, PeriodType } from "../types";
-import TimeSelect24 from "./TimeSelect24";
 
 const BUSY_LABELS = ["School", "Work", "Religious activity", "Family responsibility", "Sports", "Other"];
 
@@ -36,7 +35,7 @@ export default function AvailabilityEditor({ periods, onChange }: Props) {
     if (conflict) {
       setError(
         `This overlaps an existing ${conflict.period_type} period ` +
-          `(${conflict.start_time}\u2013${conflict.end_time}) on ${DAY_LABELS[conflict.day_of_week]}.`
+          `(${conflict.start_time}–${conflict.end_time}) on ${DAY_LABELS[conflict.day_of_week]}.`
       );
       return;
     }
@@ -60,17 +59,18 @@ export default function AvailabilityEditor({ periods, onChange }: Props) {
               <option key={label} value={i}>{label}</option>
             ))}
           </select>
-
-          <TimeSelect24
+          <input
+            type="time"
+            className="rounded border border-slate-300 px-2 py-1.5"
             value={draft.start_time}
-            onChange={(start_time) => setDraft({ ...draft, start_time })}
+            onChange={(e) => setDraft({ ...draft, start_time: e.target.value })}
           />
-          <TimeSelect24
+          <input
+            type="time"
+            className="rounded border border-slate-300 px-2 py-1.5"
             value={draft.end_time}
-            onChange={(end_time) => setDraft({ ...draft, end_time })}
-            excludeMidnightHour
+            onChange={(e) => setDraft({ ...draft, end_time: e.target.value })}
           />
-
           <select
             className="rounded border border-slate-300 px-2 py-1.5"
             value={draft.label ?? ""}
@@ -80,11 +80,6 @@ export default function AvailabilityEditor({ periods, onChange }: Props) {
             {BUSY_LABELS.map((l) => <option key={l} value={l}>{l}</option>)}
           </select>
         </div>
-
-        <p className="text-xs text-slate-500">
-          Times are 24-hour (e.g. 9:00 PM is 21:00). A period can't end at midnight \u2014 for a session
-          that runs past midnight, add a second period starting at 00:00 on the next day.
-        </p>
 
         <div className="flex gap-3">
           <button
@@ -116,7 +111,7 @@ export default function AvailabilityEditor({ periods, onChange }: Props) {
                   return (
                     <li key={globalIndex} className="flex items-center justify-between text-sm">
                       <span>
-                        {p.start_time}\u2013{p.end_time} \u2192{" "}
+                        {p.start_time}–{p.end_time} →{" "}
                         <span className={p.period_type === "free" ? "text-emerald-700" : "text-slate-500"}>
                           {p.period_type === "free" ? "Free" : `Busy${p.label ? ` (${p.label})` : ""}`}
                         </span>

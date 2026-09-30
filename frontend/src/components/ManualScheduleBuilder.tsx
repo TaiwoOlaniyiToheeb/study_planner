@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StudySchedule, ActivityType } from "../types";
 import { studyScheduleApi } from "../services/studyScheduleApi";
-import TimeSelect24 from "./TimeSelect24";
 
 interface SubjectOption { id: string; name: string }
 interface TopicOption { id: string; name: string }
@@ -101,23 +100,6 @@ export default function ManualScheduleBuilder({ onScheduleCreated, onCancel }: P
 
   function removeSession(index: number) {
     setSessions(sessions.filter((_, i) => i !== index));
-  }
-
-  function duplicateToNextDay(index: number) {
-    const original = sessions[index];
-    const nextDate = new Date(original.scheduled_date);
-    nextDate.setDate(nextDate.getDate() + 1);
-    setSessions([...sessions, { ...original, scheduled_date: nextDate.toISOString().slice(0, 10) }]);
-  }
-
-  function duplicateWeekly(index: number, weeks: number) {
-    const original = sessions[index];
-    const copies = Array.from({ length: weeks }, (_, i) => {
-      const d = new Date(original.scheduled_date);
-      d.setDate(d.getDate() + 7 * (i + 1));
-      return { ...original, scheduled_date: d.toISOString().slice(0, 10) };
-    });
-    setSessions([...sessions, ...copies]);
   }
 
   async function handleSubmit() {
@@ -274,9 +256,11 @@ export default function ManualScheduleBuilder({ onScheduleCreated, onCancel }: P
             min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setDraft({ ...draft, scheduled_date: e.target.value })}
           />
-          <TimeSelect24
+          <input
+            type="time"
+            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
             value={draft.start_time}
-            onChange={(start_time) => setDraft({ ...draft, start_time })}
+            onChange={(e) => setDraft({ ...draft, start_time: e.target.value })}
           />
           <input
             type="number"
@@ -304,25 +288,9 @@ export default function ManualScheduleBuilder({ onScheduleCreated, onCancel }: P
                   {s.scheduled_date} {s.start_time} ({s.duration_minutes}m) &mdash;{" "}
                   <strong>{subjectName(s.subject_id)}</strong> / {topicName(s.subject_id, s.topic_id)} / {s.activity_type}
                 </span>
-                <span className="flex gap-2">
-                  <button
-                    className="text-xs text-slate-500 hover:underline"
-                    onClick={() => duplicateToNextDay(i)}
-                    title="Add the same subject/topic/time as a new session tomorrow"
-                  >
-                    +1 day
-                  </button>
-                  <button
-                    className="text-xs text-slate-500 hover:underline"
-                    onClick={() => duplicateWeekly(i, 4)}
-                    title="Repeat this same session weekly for 4 more weeks"
-                  >
-                    Repeat weekly \u00d74
-                  </button>
-                  <button className="text-xs text-rose-600 hover:underline" onClick={() => removeSession(i)}>
-                    Remove
-                  </button>
-                </span>
+                <button className="text-xs text-rose-600 hover:underline" onClick={() => removeSession(i)}>
+                  Remove
+                </button>
               </li>
             ))}
           </ul>

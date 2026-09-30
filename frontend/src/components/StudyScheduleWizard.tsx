@@ -87,23 +87,13 @@ export default function StudyScheduleWizard({ subjects, onScheduleGenerated, onC
       // previous Generate attempt — re-POSTing the exact same period twice
       // trips the backend's overlap check against itself and fails with a
       // confusing "Overlaps an existing free period" error.
-      //
-      // The backend returns times as "HH:MM:SS" but the time picker stores
-      // "HH:MM", so comparisons must be normalized first — comparing the
-      // raw strings directly always failed to match, which meant every
-      // retry re-POSTed every period, and each one collided with its own
-      // already-saved copy on the backend. That was the actual cause of the
-      // "overlaps" error firing even for periods on different days: it was
-      // never really a different-day conflict, it was always a period
-      // colliding with itself.
-      const normalizeTime = (t: string) => t.slice(0, 5);
       const existing = await studyScheduleApi.listAvailability();
       const alreadySaved = (p: AvailabilityPeriod) =>
         existing.some(
           (e) =>
             e.day_of_week === p.day_of_week &&
-            normalizeTime(e.start_time) === normalizeTime(p.start_time) &&
-            normalizeTime(e.end_time) === normalizeTime(p.end_time) &&
+            e.start_time === p.start_time &&
+            e.end_time === p.end_time &&
             e.period_type === p.period_type
         );
       for (const period of availability) {
