@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ScheduledSession, ActivityType } from "../types";
 import { studyScheduleApi } from "../services/studyScheduleApi";
+import TimeSelect24 from "./TimeSelect24";
 
 interface Props {
   session: ScheduledSession;
@@ -49,8 +50,7 @@ export default function ModifyScheduleModal({ session, onClose, onModified }: Pr
                value={date} onChange={(e) => setDate(e.target.value)} />
 
         <label className="block text-sm font-medium">Start time</label>
-        <input type="time" className="w-full rounded border border-slate-300 px-2 py-1.5"
-               value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+        <TimeSelect24 value={startTime} onChange={setStartTime} />
 
         <label className="block text-sm font-medium">Duration (minutes)</label>
         <input type="number" min={15} max={180} step={15}
